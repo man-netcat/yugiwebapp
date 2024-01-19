@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Search{% endblock %}
+
+{% block content %}
+<style>
+    .grid-container {
+        display: grid;
+        grid-template-rows: repeat(3, 1fr);
+        gap: 20px;
+        max-width: 600px;
+        margin: 0;
+    }
+
+    .grid-item {
+        display: flex;
+        flex-direction: column;
+        margin-right: 20px;
+    }
+</style>
+
+
+<h1>Search</h1>
+
+<div class="grid-container">
+    <form action="{{ url_for('search_card') }}" method="post" class="grid-item">
+        <label for="card_dropdown">Select a Card:</label>
+        <select id="card_dropdown" name="card_id" autocomplete="on">
+            {% for card_name, card_id in card_map.items() %}
+            <option value="{{ card_id }}">{{ card_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search Card</button>
+    </form>
+
+    <form action="{{ url_for('search_archetype') }}" method="post" class="grid-item">
+        <label for="archetype_dropdown">Select an Archetype:</label>
+        <select id="archetype_dropdown" name="archetype_id" autocomplete="on">
+            {% for arch_name, arch_id in arch_map.items() %}
+            <option value="{{ arch_id }}">{{ arch_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search Archetype</button>
+    </form>
+
+    <form action="{{ url_for('search_set') }}" method="post" class="grid-item">
+        <label for="set_dropdown">Select a Set:</label>
+        <select id="set_dropdown" name="set_id" autocomplete="on">
+            {% for set_name, set_id in set_map.items() %}
+            <option value="{{ set_id }}">{{ set_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search Set</button>
+    </form>
+</div>
+{% endblock %}

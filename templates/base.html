@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %} - Yu-Gi-Oh! Database Web Application</title>
+    <style>
+        nav a {
+            color: #d64161;
+            margin-left: 50px;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="/">Index</a>
+        <a href="/about">About</a>
+        <a href="/search">Search</a>
+    </nav>
+    <hr>
+    <div class="content">
+        {% block content %} {% endblock %}
+    </div>
+</body>
+<hr>
+</html>

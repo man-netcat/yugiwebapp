@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yu-Gi-Oh! Database Web Application</title>
-</head>
-
-<body>
-    CONTENT HERE
-</body>
-
-</html>
+{% block content %}
+<h1>{% block title %} Index {% endblock %}</h1>
+<h2>Welcome to Yu-Gi-Oh! Database Web Application</h2>
+{% endblock %}

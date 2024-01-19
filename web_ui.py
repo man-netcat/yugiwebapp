@@ -1,6 +1,6 @@
 import argparse
 
-import requests
+import requests_cache
 from flask import Flask, jsonify, render_template, request
 
 parser = argparse.ArgumentParser(description="Yu-Gi-Oh! Web Application")
@@ -14,19 +14,20 @@ base_url = "http://localhost:5000"
 card_map = None
 arch_map = None
 set_map = None
+session = requests_cache.CachedSession("request_cache")
 
 
 def wait_for_api():
     print("Waiting for the API to be online...")
     available = False
     while not available:
-        response = requests.get(f"{base_url}/connection")
+        response = session.get(f"{base_url}/connection")
         available = response.status_code == 200
 
 
 def setup_maps():
     global card_map, arch_map, set_map
-    maps = requests.get(f"{base_url}/mappings").json()
+    maps = session.get(f"{base_url}/mappings").json()
     card_map = maps["card_map"]
     arch_map = maps["arch_map"]
     set_map = maps["set_map"]
@@ -39,11 +40,11 @@ def search_card():
     if request.method == "POST":
         card_id = request.form["card_id"]
         try:
-            res = requests.get(f"{base_url}/card_data?id={card_id}")
+            res = session.get(f"{base_url}/card_data?id={card_id}")
             card_data = res.json()
             print(card_data)
             return render_template("card_result.html", card=card_data[0])
-        except requests.exceptions.RequestException as e:
+        except session.exceptions.RequestException as e:
             return jsonify({"error": str(e)})
     return render_template("search.html")
 
@@ -53,11 +54,11 @@ def search_archetype():
     if request.method == "POST":
         archetype_id = request.form["archetype_id"]
         try:
-            res = requests.get(f"{base_url}/arch_data?id={archetype_id}")
+            res = session.get(f"{base_url}/arch_data?id={archetype_id}")
             arch_data = res.json()
             print(arch_data)
             return render_template("arch_result.html", arch=arch_data[0])
-        except requests.exceptions.RequestException as e:
+        except session.exceptions.RequestException as e:
             return jsonify({"error": str(e)})
     return render_template("search.html")
 
@@ -67,11 +68,11 @@ def search_set():
     if request.method == "POST":
         set_id = request.form["set_id"]
         try:
-            res = requests.get(f"{base_url}/set_data?id={set_id}")
+            res = session.get(f"{base_url}/set_data?id={set_id}")
             set_data = res.json()
             print(set_data)
             return render_template("set_result.html", set=set_data[0])
-        except requests.exceptions.RequestException as e:
+        except session.exceptions.RequestException as e:
             return jsonify({"error": str(e)})
     return render_template("search.html")
 

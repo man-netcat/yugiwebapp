@@ -15,7 +15,7 @@ api_port = os.environ.get("YUGIAPI_SERVICE_PORT_5000_TCP_PORT", 5000)
 api_url = f"http://{api_host}:{api_port}"
 
 app_host = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_HOST", "localhost")
-app_port = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 5000)
+app_port = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
 app_url = f"http://{app_host}:{app_port}"
 
 card_map = None

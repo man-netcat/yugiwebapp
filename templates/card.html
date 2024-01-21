@@ -2,18 +2,19 @@
     style="border: 1px solid #ddd; padding: 10px; margin: 10px; width: 33.33%; box-sizing: border-box;">
     <p>Name: {{ card.name }}</p>
     <p>Id: {{ card.id }}</p>
-    <p>Type: {{ card.type_str }}</p>
+    <p>{{ card.type_str }}</p>
 
     {% if not card.is_spelltrap %}
+    <p>Attribute {{ card.attribute }}</p>
+
     {% if 'Link' not in card.type %}
     <p>{{ card.level_str }}</p>
     {% endif %}
 
-
     {% if 'Link' not in card.type %}
-    <p>ATK {{ card.atk if card.atk > 0 else "?" }} / DEF {{ card.def_ if card.def_ > 0 else "?" }}</p>
+    <p>ATK {{ card.atk if card.atk >= 0 else "?" }} / DEF {{ card.def_ if card.def_ >= 0 else "?" }}</p>
     {% else %}
-    <p>ATK {{ card.atk if card.atk > 0 else "?" }} / LINK - {{ card.level }}</p>
+    <p>ATK {{ card.atk if card.atk >= 0 else "?" }} / LINK - {{ card.level }}</p>
     <p>Link Markers: {{ card.linkmarkers }}</p>
     {% endif %}
 

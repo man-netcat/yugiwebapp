@@ -4,9 +4,30 @@
 
 {% block content %}
 <h1>Archetype Result</h1>
-<p><strong>Name:</strong> {{ arch.name }}</p>
-<p><strong>Id:</strong> {{ arch.id }}</p>
-<p><strong>Members:</strong> {{ arch.members }}</p>
-<p><strong>Support:</strong> {{ arch.support }}</p>
-<p><strong>Related:</strong> {{ arch.related }}</p>
+<p><strong>Archetype Name:</strong> {{ arch.name }}</p>
+<p><strong>Archetype Id:</strong> {{ arch.id }}</p>
+{% if members %}
+<hr>
+<p><strong>Archetype Members:</strong>
+    {% for card in members %}
+    {% include "card.html" %}
+    {% endfor %}
+</p>
+{% endif %}
+{% if support %}
+<hr>
+<p><strong>Archetype Support:</strong>
+    {% for card in support %}
+    {% include "card.html" %}
+    {% endfor %}
+</p>
+{% endif %}
+{% if related %}
+<hr>
+<p><strong>Related Cards:</strong>
+    {% for card in related %}
+    {% include "card.html" %}
+    {% endfor %}
+</p>
+{% endif %}
 {% endblock %}

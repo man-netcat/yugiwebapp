@@ -33,6 +33,11 @@ def setup_maps():
     set_map = maps["set_map"]
 
 
+def card_query(ids):
+    idstring = "|".join([str(id) for id in ids])
+    return session.get(f"{api_url}/card_data?id={idstring}").json()
+
+
 @app.route("/search_card", methods=["GET", "POST"])
 def search_card():
     if request.method == "POST":
@@ -42,6 +47,7 @@ def search_card():
             card_data = res.json()
             return render_template("card_result.html", card=card_data[0])
         except Exception as e:
+            print(e)
             return jsonify({"error": str(e)})
     return render_template("search.html")
 
@@ -52,9 +58,23 @@ def search_archetype():
         archetype_id = request.form["archetype_id"]
         try:
             res = session.get(f"{api_url}/arch_data?id={archetype_id}")
-            arch_data = res.json()
-            return render_template("arch_result.html", arch=arch_data[0])
+            arch_data = res.json()[0]
+            members = card_query(arch_data["members"]) if arch_data["members"] else []
+            support = card_query(arch_data["support"]) if arch_data["support"] else []
+            related = card_query(arch_data["related"]) if arch_data["related"] else []
+            return render_template(
+                "arch_result.html",
+                arch=arch_data,
+                members=members,
+                support=[card for card in support if card not in members],
+                related=[
+                    card
+                    for card in related
+                    if card not in members and card not in support
+                ],
+            )
         except Exception as e:
+            print(e)
             return jsonify({"error": str(e)})
     return render_template("search.html")
 
@@ -65,8 +85,13 @@ def search_set():
         set_id = request.form["set_id"]
         try:
             res = session.get(f"{api_url}/set_data?id={set_id}")
-            set_data = res.json()
-            return render_template("set_result.html", set=set_data[0])
+            set_data = res.json()[0]
+            contents = card_query(set_data["contents"])
+            return render_template(
+                "set_result.html",
+                set=set_data,
+                contents=contents,
+            )
         except Exception as e:
             return jsonify({"error": str(e)})
     return render_template("search.html")

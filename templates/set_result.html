@@ -4,7 +4,12 @@
 
 {% block content %}
 <h1>Set Result</h1>
-<p><strong>Name:</strong> {{ set.name }}</p>
-<p><strong>Id:</strong> {{ set.id }}</p>
-<p><strong>Contents:</strong> {{ set.contents }}</p>
+<p><strong>Set Name:</strong> {{ set.name }}</p>
+<p><strong>Set Id:</strong> {{ set.id }}</p>
+<hr>
+<p><strong>Set Contents:</strong>
+    {% for card in contents %}
+    {% include "card.html" %}
+    {% endfor %}
+</p>
 {% endblock %}

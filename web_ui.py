@@ -65,7 +65,7 @@ def search_card():
         except Exception as e:
             print(e)
             return jsonify({"error": str(e)})
-    return redirect("/search")
+    return redirect("/")
 
 
 @app.route("/search_archetype", methods=["GET", "POST"])
@@ -93,7 +93,7 @@ def search_archetype():
         except Exception as e:
             print(e)
             return jsonify({"error": str(e)})
-    return redirect("/search")
+    return redirect("/")
 
 
 @app.route("/search_set", methods=["GET", "POST"])
@@ -112,11 +112,11 @@ def search_set():
             )
         except Exception as e:
             return jsonify({"error": str(e)})
-    return redirect("/search")
+    return redirect("/")
 
 
 @app.route("/")
-def search():
+def index():
     maps = session.get(f"{api_url}/mappings").json()
     card_map = maps["card_map"]
     arch_map = maps["arch_map"]

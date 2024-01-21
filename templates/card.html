@@ -1,24 +1,26 @@
-<div class="card-details"
-    style="border: 1px solid #ddd; padding: 10px; margin: 10px; width: 33.33%; box-sizing: border-box;">
-    <p>Name: {{ card.name }}</p>
-    <p>Id: {{ card.id }}</p>
-    <p>{{ card.type_str }}</p>
+<div class="card-container" style="display: flex; border: 1px solid #ddd; margin: 10px; box-sizing: border-box;">
+    <img src="{{ api_url }}/render/{{ card.id }}" alt="Image" style="width: 15%; height: 15%;">
+    <div class="card-details" style="flex: 1; padding: 10px;">
+        <p>Name: {{ card.name }}</p>
+        <p>Id: {{ card.id }}</p>
+        <p>{{ card.type_str }}</p>
 
-    {% if not card.is_spelltrap %}
-    <p>Attribute {{ card.attribute }}</p>
+        {% if not card.is_spelltrap %}
+        <p>Attribute {{ card.attribute }}</p>
 
-    {% if 'Link' not in card.type %}
-    <p>{{ card.level_str }}</p>
-    {% endif %}
+        {% if 'Link' not in card.type %}
+        <p>{{ card.level_str }}</p>
+        {% endif %}
 
-    {% if 'Link' not in card.type %}
-    <p>ATK {{ card.atk if card.atk >= 0 else "?" }} / DEF {{ card.def_ if card.def_ >= 0 else "?" }}</p>
-    {% else %}
-    <p>ATK {{ card.atk if card.atk >= 0 else "?" }} / LINK - {{ card.level }}</p>
-    <p>Link Markers: {{ card.linkmarkers }}</p>
-    {% endif %}
+        {% if 'Link' not in card.type %}
+        <p>ATK {{ card.atk if card.atk >= 0 else "?" }} / DEF {{ card.def_ if card.def_ >= 0 else "?" }}</p>
+        {% else %}
+        <p>ATK {{ card.atk if card.atk >= 0 else "?" }} / LINK - {{ card.level }}</p>
+        <p>Link Markers: {{ card.linkmarkers }}</p>
+        {% endif %}
 
-    {% endif %}
+        {% endif %}
 
-    <p>{{ card.text }}</p>
+        <p>{{ card.text }}</p>
+    </div>
 </div>

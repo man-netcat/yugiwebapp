@@ -1,8 +1,10 @@
 import argparse
 import os
+import time
 
+import requests
 import requests_cache
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, redirect, render_template, request
 
 parser = argparse.ArgumentParser(description="Yu-Gi-Oh! Web Application")
 parser.add_argument("--debug", action="store_true", help="Enable debug mode")
@@ -25,12 +27,24 @@ set_map = None
 session = requests_cache.CachedSession("request_cache")
 
 
-def setup_maps():
-    global card_map, arch_map, set_map
-    maps = session.get(f"{api_url}/mappings").json()
-    card_map = maps["card_map"]
-    arch_map = maps["arch_map"]
-    set_map = maps["set_map"]
+def wait_for_api():
+    max_retries = 30
+    retries = 0
+
+    while retries < max_retries:
+        try:
+            response = requests.get(f"{api_url}/connection")
+            response.raise_for_status()
+            return
+        except requests.exceptions.RequestException as e:
+            print(
+                f"API not online yet. Retrying in 2 seconds... ({retries + 1}/{max_retries})"
+            )
+            time.sleep(2)
+            retries += 1
+
+    print("Max retries reached. Unable to connect to the API. Exiting.")
+    exit(1)
 
 
 def card_query(ids):
@@ -45,11 +59,13 @@ def search_card():
         try:
             res = session.get(f"{api_url}/card_data?id={card_id}")
             card_data = res.json()
-            return render_template("card_result.html", card=card_data[0])
+            return render_template(
+                "card_result.html", api_url=api_url, card=card_data[0]
+            )
         except Exception as e:
             print(e)
             return jsonify({"error": str(e)})
-    return render_template("search.html")
+    return redirect("/search")
 
 
 @app.route("/search_archetype", methods=["GET", "POST"])
@@ -64,6 +80,7 @@ def search_archetype():
             related = card_query(arch_data["related"]) if arch_data["related"] else []
             return render_template(
                 "arch_result.html",
+                api_url=api_url,
                 arch=arch_data,
                 members=members,
                 support=[card for card in support if card not in members],
@@ -76,7 +93,7 @@ def search_archetype():
         except Exception as e:
             print(e)
             return jsonify({"error": str(e)})
-    return render_template("search.html")
+    return redirect("/search")
 
 
 @app.route("/search_set", methods=["GET", "POST"])
@@ -89,19 +106,23 @@ def search_set():
             contents = card_query(set_data["contents"])
             return render_template(
                 "set_result.html",
+                api_url=api_url,
                 set=set_data,
                 contents=contents,
             )
         except Exception as e:
             return jsonify({"error": str(e)})
-    return render_template("search.html")
+    return redirect("/search")
 
 
-@app.route("/search")
+@app.route("/")
 def search():
-    global card_map, arch_map, set_map
+    maps = session.get(f"{api_url}/mappings").json()
+    card_map = maps["card_map"]
+    arch_map = maps["arch_map"]
+    set_map = maps["set_map"]
     return render_template(
-        "search.html", card_map=card_map, arch_map=arch_map, set_map=set_map
+        "index.html", card_map=card_map, arch_map=arch_map, set_map=set_map
     )
 
 
@@ -110,13 +131,8 @@ def about():
     return render_template("about.html")
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-
 if __name__ == "__main__":
-    setup_maps()
+    wait_for_api()
 
     if args.debug:
         app.run(debug=args.debug, port=app_port)

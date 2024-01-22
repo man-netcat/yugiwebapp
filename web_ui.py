@@ -4,7 +4,7 @@ import time
 
 import requests
 import requests_cache
-from flask import Flask, jsonify, redirect, render_template, request
+from flask import Flask, redirect, render_template, request
 
 parser = argparse.ArgumentParser(description="Yu-Gi-Oh! Web Application")
 parser.add_argument("--debug", action="store_true", help="Enable debug mode")
@@ -20,7 +20,10 @@ app_host = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_HOST", "localhost")
 app_port = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
 app_url = f"http://{app_host}:{app_port}"
 
-session = requests_cache.CachedSession("request_cache")
+if args.debug:
+    session = requests.Session()
+else:
+    session = requests_cache.CachedSession("request_cache")
 
 
 def wait_for_api():
@@ -53,12 +56,11 @@ def search_card():
     if request.method == "POST":
         card_name = request.form["card_name"]
         res = session.get(f"{api_url}/card_data?name={card_name}")
-        card_data = res.json()
-        print(card_data)
+        card_data = res.json()[0]
         return render_template(
             "card_result.html",
             api_url=api_url,
-            card=card_data[0],
+            card=card_data,
         )
     return redirect("/")
 
@@ -113,11 +115,6 @@ def index():
         arch_names=arch_names,
         set_names=set_names,
     )
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
 
 
 if __name__ == "__main__":

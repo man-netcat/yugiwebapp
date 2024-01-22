@@ -20,10 +20,6 @@ app_host = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_HOST", "localhost")
 app_port = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
 app_url = f"http://{app_host}:{app_port}"
 
-card_map = None
-arch_map = None
-set_map = None
-
 session = requests_cache.CachedSession("request_cache")
 
 
@@ -55,74 +51,67 @@ def card_query(ids):
 @app.route("/search_card", methods=["GET", "POST"])
 def search_card():
     if request.method == "POST":
-        card_id = request.form["card_id"]
-        try:
-            res = session.get(f"{api_url}/card_data?id={card_id}")
-            card_data = res.json()
-            return render_template(
-                "card_result.html", api_url=api_url, card=card_data[0]
-            )
-        except Exception as e:
-            print(e)
-            return jsonify({"error": str(e)})
+        card_name = request.form["card_name"]
+        res = session.get(f"{api_url}/card_data?name={card_name}")
+        card_data = res.json()
+        print(card_data)
+        return render_template(
+            "card_result.html",
+            api_url=api_url,
+            card=card_data[0],
+        )
     return redirect("/")
 
 
 @app.route("/search_archetype", methods=["GET", "POST"])
 def search_archetype():
     if request.method == "POST":
-        archetype_id = request.form["archetype_id"]
-        try:
-            res = session.get(f"{api_url}/arch_data?id={archetype_id}")
-            arch_data = res.json()[0]
-            members = card_query(arch_data["members"]) if arch_data["members"] else []
-            support = card_query(arch_data["support"]) if arch_data["support"] else []
-            related = card_query(arch_data["related"]) if arch_data["related"] else []
-            return render_template(
-                "arch_result.html",
-                api_url=api_url,
-                arch=arch_data,
-                members=members,
-                support=[card for card in support if card not in members],
-                related=[
-                    card
-                    for card in related
-                    if card not in members and card not in support
-                ],
-            )
-        except Exception as e:
-            print(e)
-            return jsonify({"error": str(e)})
+        archetype_name = request.form["archetype_name"]
+        res = session.get(f"{api_url}/arch_data?name={archetype_name}")
+        arch_data = res.json()[0]
+        members = card_query(arch_data["members"]) if arch_data["members"] else []
+        support = card_query(arch_data["support"]) if arch_data["support"] else []
+        related = card_query(arch_data["related"]) if arch_data["related"] else []
+        return render_template(
+            "arch_result.html",
+            api_url=api_url,
+            arch=arch_data,
+            members=members,
+            support=[card for card in support if card not in members],
+            related=[
+                card for card in related if card not in members and card not in support
+            ],
+        )
     return redirect("/")
 
 
 @app.route("/search_set", methods=["GET", "POST"])
 def search_set():
     if request.method == "POST":
-        set_id = request.form["set_id"]
-        try:
-            res = session.get(f"{api_url}/set_data?id={set_id}")
-            set_data = res.json()[0]
-            contents = card_query(set_data["contents"])
-            return render_template(
-                "set_result.html",
-                api_url=api_url,
-                set=set_data,
-                contents=contents,
-            )
-        except Exception as e:
-            return jsonify({"error": str(e)})
+        set_name = request.form["set_name"]
+        res = session.get(f"{api_url}/set_data?name={set_name}")
+        set_data = res.json()[0]
+        contents = card_query(set_data["contents"])
+        return render_template(
+            "set_result.html",
+            api_url=api_url,
+            set=set_data,
+            contents=contents,
+        )
     return redirect("/")
 
 
 @app.route("/")
 def index():
-    maps = session.get(f"{api_url}/mappings").json()
-    card_map = maps["card_map"]
-    arch_map = maps["arch_map"]
-    set_map = maps["set_map"]
+    res = session.get(f"{api_url}/names").json()
+    card_names = res["card_names"]
+    arch_names = res["arch_names"]
+    set_names = res["set_names"]
     return render_template(
-        "index.html", card_map=card_map, arch_map=arch_map, set_map=set_map
+        "index.html",
+        card_names=card_names,
+        arch_names=arch_names,
+        set_names=set_names,
     )
 
 

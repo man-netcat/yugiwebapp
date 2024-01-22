@@ -19,37 +19,39 @@
     }
 </style>
 
-
 <h1>Yu-Gi-Oh! Database Application</h1>
 
 <div class="grid-container">
     <form action="{{ url_for('search_card') }}" method="post" class="grid-item">
-        <label for="card_dropdown">Select a Card:</label>
-        <select id="card_dropdown" name="card_id" autocomplete="on">
-            {% for card_name, card_id in card_map.items() %}
-            <option value="{{ card_id }}">{{ card_name }}</option>
-            {% endfor %}
-        </select>
+        <label for="card_input">Select a Card:</label>
+        <input type="text" id="card_input" name="card_name" list="card_list" autocomplete="on">
+        <datalist id="card_list">
+            {% for card_name in card_names %}
+            <option value="{{ card_name }}">
+                {% endfor %}
+        </datalist>
         <button type="submit">Search Card</button>
     </form>
 
     <form action="{{ url_for('search_archetype') }}" method="post" class="grid-item">
-        <label for="archetype_dropdown">Select an Archetype:</label>
-        <select id="archetype_dropdown" name="archetype_id" autocomplete="on">
-            {% for arch_name, arch_id in arch_map.items() %}
-            <option value="{{ arch_id }}">{{ arch_name }}</option>
-            {% endfor %}
-        </select>
+        <label for="archetype_input">Select an Archetype:</label>
+        <input type="text" id="archetype_input" name="archetype_name" list="arch_list" autocomplete="on">
+        <datalist id="arch_list">
+            {% for arch_name in arch_names %}
+            <option value="{{ arch_name }}">
+                {% endfor %}
+        </datalist>
         <button type="submit">Search Archetype</button>
     </form>
 
     <form action="{{ url_for('search_set') }}" method="post" class="grid-item">
-        <label for="set_dropdown">Select a Set:</label>
-        <select id="set_dropdown" name="set_id" autocomplete="on">
-            {% for set_name, set_id in set_map.items() %}
-            <option value="{{ set_id }}">{{ set_name }}</option>
-            {% endfor %}
-        </select>
+        <label for="set_input">Select a Set:</label>
+        <input type="text" id="set_input" name="set_name" list="set_list" autocomplete="on">
+        <datalist id="set_list">
+            {% for set_nam in set_names %}
+            <option value="{{ set_name }}">
+                {% endfor %}
+        </datalist>
         <button type="submit">Search Set</button>
     </form>
 </div>

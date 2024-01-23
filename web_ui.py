@@ -5,6 +5,7 @@ import time
 import requests
 import requests_cache
 from flask import Flask, redirect, render_template, request
+from rapidfuzz import fuzz, process
 
 parser = argparse.ArgumentParser(description="Yu-Gi-Oh! Web Application")
 parser.add_argument("--debug", action="store_true", help="Enable debug mode")
@@ -24,6 +25,10 @@ if args.debug:
     session = requests.Session()
 else:
     session = requests_cache.CachedSession("request_cache")
+
+card_names = []
+arch_names = []
+set_names = []
 
 
 def wait_for_api():
@@ -46,69 +51,78 @@ def wait_for_api():
     exit(1)
 
 
+def fuzzy_search(query, options, threshold=50):
+    matches = process.extract(query, options, scorer=fuzz.WRatio)
+    return [match for match, score, _ in matches if score > threshold]
+
+
 def card_query(ids):
     idstring = "|".join([str(id) for id in ids])
     return session.get(f"{api_url}/card_data?id={idstring}").json()
 
 
-@app.route("/search_card", methods=["GET", "POST"])
-def search_card():
+@app.route("/search", methods=["GET", "POST"])
+def search():
     if request.method == "POST":
-        card_name = request.form["card_name"]
-        res = session.get(f"{api_url}/card_data?name={card_name}")
-        card_data = res.json()[0]
+        search_term = request.form["search_term"]
+        card_matches = fuzzy_search(search_term, card_names)
+        arch_matches = fuzzy_search(search_term, arch_names)
+        set_matches = fuzzy_search(search_term, set_names)
         return render_template(
-            "card_result.html",
+            "search_results.html",
             api_url=api_url,
-            card=card_data,
+            card_matches=card_matches,
+            arch_matches=arch_matches,
+            set_matches=set_matches,
         )
     return redirect("/")
 
 
-@app.route("/search_archetype", methods=["GET", "POST"])
-def search_archetype():
-    if request.method == "POST":
-        archetype_name = request.form["archetype_name"]
-        res = session.get(f"{api_url}/arch_data?name={archetype_name}")
-        arch_data = res.json()[0]
-        members = card_query(arch_data["members"]) if arch_data["members"] else []
-        support = card_query(arch_data["support"]) if arch_data["support"] else []
-        related = card_query(arch_data["related"]) if arch_data["related"] else []
-        return render_template(
-            "arch_result.html",
-            api_url=api_url,
-            arch=arch_data,
-            members=members,
-            support=[card for card in support if card not in members],
-            related=[
-                card for card in related if card not in members and card not in support
-            ],
-        )
-    return redirect("/")
+@app.route("/card/<card_name>")
+def card_result(card_name):
+    res = session.get(f"{api_url}/card_data?name={card_name}")
+    card_data = res.json()[0]
+    return render_template(
+        "card_result.html",
+        api_url=api_url,
+        card=card_data,
+    )
 
 
-@app.route("/search_set", methods=["GET", "POST"])
-def search_set():
-    if request.method == "POST":
-        set_name = request.form["set_name"]
-        res = session.get(f"{api_url}/set_data?name={set_name}")
-        set_data = res.json()[0]
-        contents = card_query(set_data["contents"])
-        return render_template(
-            "set_result.html",
-            api_url=api_url,
-            set=set_data,
-            contents=contents,
-        )
-    return redirect("/")
+@app.route("/archetype/<arch_name>")
+def archetype_result(arch_name):
+    res = session.get(f"{api_url}/arch_data?name={arch_name}")
+    arch_data = res.json()[0]
+    members = card_query(arch_data["members"]) if arch_data["members"] else []
+    support = card_query(arch_data["support"]) if arch_data["support"] else []
+    related = card_query(arch_data["related"]) if arch_data["related"] else []
+    return render_template(
+        "arch_result.html",
+        api_url=api_url,
+        arch=arch_data,
+        members=members,
+        support=[card for card in support if card not in members],
+        related=[
+            card for card in related if card not in members and card not in support
+        ],
+    )
+
+
+@app.route("/set/<set_name>")
+def set_result(set_name):
+    res = session.get(f"{api_url}/set_data?name={set_name}")
+    set_data = res.json()[0]
+    contents = card_query(set_data["contents"])
+    return render_template(
+        "set_result.html",
+        api_url=api_url,
+        set=set_data,
+        contents=contents,
+    )
 
 
 @app.route("/")
 def index():
-    res = session.get(f"{api_url}/names").json()
-    card_names = res["card_names"]
-    arch_names = res["arch_names"]
-    set_names = res["set_names"]
     return render_template(
         "index.html",
         card_names=card_names,
@@ -119,6 +133,10 @@ def index():
 
 if __name__ == "__main__":
     wait_for_api()
+    res = session.get(f"{api_url}/names").json()
+    card_names = res["card_names"]
+    arch_names = res["arch_names"]
+    set_names = res["set_names"]
 
     if args.debug:
         app.run(debug=args.debug, port=app_port)

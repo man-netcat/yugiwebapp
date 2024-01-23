@@ -22,37 +22,10 @@
 <h1>Yu-Gi-Oh! Database Application</h1>
 
 <div class="grid-container">
-    <form action="{{ url_for('search_card') }}" method="post" class="grid-item">
-        <label for="card_input">Select a Card:</label>
-        <input type="text" id="card_input" name="card_name" list="card_list" autocomplete="on">
-        <datalist id="card_list">
-            {% for card_name in card_names %}
-            <option value="{{ card_name }}">
-                {% endfor %}
-        </datalist>
-        <button type="submit">Search Card</button>
-    </form>
-
-    <form action="{{ url_for('search_archetype') }}" method="post" class="grid-item">
-        <label for="archetype_input">Select an Archetype:</label>
-        <input type="text" id="archetype_input" name="archetype_name" list="arch_list" autocomplete="on">
-        <datalist id="arch_list">
-            {% for arch_name in arch_names %}
-            <option value="{{ arch_name }}">
-                {% endfor %}
-        </datalist>
-        <button type="submit">Search Archetype</button>
-    </form>
-
-    <form action="{{ url_for('search_set') }}" method="post" class="grid-item">
-        <label for="set_input">Select a Set:</label>
-        <input type="text" id="set_input" name="set_name" list="set_list" autocomplete="on">
-        <datalist id="set_list">
-            {% for set_name in set_names %}
-            <option value="{{ set_name }}">
-                {% endfor %}
-        </datalist>
-        <button type="submit">Search Set</button>
+    <form action="{{ url_for('search') }}" method="post" class="grid-item">
+        <label for="search_input">Search Cards, Archetypes and Sets</label>
+        <input type="text" id="search_input" name="search_term" list="search_list">
+        <button type="submit">Search</button>
     </form>
 </div>
 {% endblock %}

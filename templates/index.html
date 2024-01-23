@@ -48,7 +48,7 @@
         <label for="set_input">Select a Set:</label>
         <input type="text" id="set_input" name="set_name" list="set_list" autocomplete="on">
         <datalist id="set_list">
-            {% for set_nam in set_names %}
+            {% for set_name in set_names %}
             <option value="{{ set_name }}">
                 {% endfor %}
         </datalist>

@@ -52,7 +52,7 @@ def wait_for_api():
 
 
 def fuzzy_search(query, options, threshold=50):
-    matches = process.extract(query, options, scorer=fuzz.WRatio)
+    matches = process.extract(query, options, scorer=fuzz.WRatio, limit=10)
     return [match for match, score, _ in matches if score > threshold]
 
 

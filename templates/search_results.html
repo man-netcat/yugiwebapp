@@ -8,21 +8,21 @@
 <h3>Card Matches</h3>
 <ul>
     {% for match in card_matches %}
-    <li><a href="{{ url_for('card_result', card_name=match) }}">{{ match }}</a></li>
+    <li><a href="{{ url_for('card_result', card_name=match|quote_plus) }}">{{ match }}</a></li>
     {% endfor %}
 </ul>
 
 <h3>Archetype Matches</h3>
 <ul>
     {% for match in arch_matches %}
-    <li><a href="{{ url_for('archetype_result', arch_name=match) }}">{{ match }}</a></li>
+    <li><a href="{{ url_for('archetype_result', arch_name=match|quote_plus) }}">{{ match }}</a></li>
     {% endfor %}
 </ul>
 
 <h3>Set Matches</h3>
 <ul>
     {% for match in set_matches %}
-    <li><a href="{{ url_for('set_result', set_name=match) }}">{{ match }}</a></li>
+    <li><a href="{{ url_for('set_result', set_name=match|quote_plus) }}">{{ match }}</a></li>
     {% endfor %}
 </ul>
 {% endblock %}

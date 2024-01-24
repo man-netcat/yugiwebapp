@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+from urllib.parse import quote_plus
 
 import requests
 import requests_cache
@@ -13,13 +14,15 @@ args = parser.parse_args()
 
 app = Flask(__name__)
 
-api_host = os.environ.get("YUGIAPI_SERVICE_PORT_5000_TCP_ADDR", "localhost")
-api_port = os.environ.get("YUGIAPI_SERVICE_PORT_5000_TCP_PORT", 5000)
+api_host = os.environ.get("YUGIDBAPP_YUGIAPI_SERVICE_PORT_5000_TCP_ADDR", "localhost")
+api_port = os.environ.get("YUGIDBAPP_YUGIAPI_SERVICE_PORT_5000_TCP_PORT", 5000)
 api_url = f"http://{api_host}:{api_port}"
 
-app_host = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_HOST", "localhost")
-app_port = os.environ.get("YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
+app_host = os.environ.get("YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_ADDR", "localhost")
+app_port = os.environ.get("YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
 app_url = f"http://{app_host}:{app_port}"
+
+app.jinja_env.filters["quote_plus"] = lambda u: quote_plus(u)
 
 if args.debug:
     session = requests.Session()
@@ -42,7 +45,7 @@ def wait_for_api():
             return
         except requests.exceptions.RequestException as e:
             print(
-                f"API not online yet. Retrying in 2 seconds... ({retries + 1}/{max_retries})"
+                f"API at {api_url} not online yet. Retrying in 2 seconds... ({retries + 1}/{max_retries})"
             )
             time.sleep(2)
             retries += 1

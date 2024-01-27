@@ -1,12 +1,12 @@
 import argparse
 import os
-import time
 from urllib.parse import quote_plus
 
 import requests
 import requests_cache
 from flask import Flask, redirect, render_template, request
 from rapidfuzz import fuzz, process
+from retrying import retry
 
 parser = argparse.ArgumentParser(description="Yu-Gi-Oh! Web Application")
 parser.add_argument("--debug", action="store_true", help="Enable debug mode")
@@ -18,7 +18,9 @@ api_host = os.environ.get("YUGIDBAPP_YUGIAPI_SERVICE_PORT_5000_TCP_ADDR", "local
 api_port = os.environ.get("YUGIDBAPP_YUGIAPI_SERVICE_PORT_5000_TCP_PORT", 5000)
 api_url = f"http://{api_host}:{api_port}"
 
-app_host = os.environ.get("YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_ADDR", "localhost")
+app_host = os.environ.get(
+    "YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_ADDR", "localhost"
+)
 app_port = os.environ.get("YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
 app_url = f"http://{app_host}:{app_port}"
 
@@ -34,24 +36,11 @@ arch_names = []
 set_names = []
 
 
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def wait_for_api():
-    max_retries = 30
-    retries = 0
-
-    while retries < max_retries:
-        try:
-            response = requests.get(f"{api_url}/connection")
-            response.raise_for_status()
-            return
-        except requests.exceptions.RequestException as e:
-            print(
-                f"API at {api_url} not online yet. Retrying in 2 seconds... ({retries + 1}/{max_retries})"
-            )
-            time.sleep(2)
-            retries += 1
-
-    print("Max retries reached. Unable to connect to the API. Exiting.")
-    exit(1)
+    print("trying to connect to api...")
+    response = requests.get(f"{api_url}/connection")
+    response.raise_for_status()
 
 
 def fuzzy_search(query, options, threshold=50):
@@ -136,6 +125,7 @@ def index():
 
 if __name__ == "__main__":
     wait_for_api()
+    print("api ready!")
     res = session.get(f"{api_url}/names").json()
     card_names = res["card_names"]
     arch_names = res["arch_names"]

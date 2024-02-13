@@ -14,13 +14,7 @@ args = parser.parse_args()
 
 app = Flask(__name__)
 
-api_host = os.environ.get("API_ADDR", "localhost")
-api_port = os.environ.get("API_PORT", 5000)
-api_url = f"http://{api_host}:{api_port}"
-
-app_host = os.environ.get("APP_ADDR", "localhost")
-app_port = os.environ.get("APP_PORT", 3000)
-app_url = f"http://{app_host}:{app_port}"
+api_url = os.environ.get("API_URL", "localhost:5000")
 
 app.jinja_env.filters["quote_plus"] = lambda u: quote_plus(u)
 
@@ -130,8 +124,8 @@ if __name__ == "__main__":
     set_names = res["set_names"]
 
     if args.debug:
-        app.run(debug=args.debug, port=app_port)
+        app.run(debug=args.debug, port=3000)
     else:
         from waitress import serve
 
-        serve(app, host="0.0.0.0", port=app_port)
+        serve(app, host="0.0.0.0", port=3000)

@@ -14,14 +14,12 @@ args = parser.parse_args()
 
 app = Flask(__name__)
 
-api_host = os.environ.get("YUGIDBAPP_YUGIAPI_SERVICE_PORT_5000_TCP_ADDR", "localhost")
-api_port = os.environ.get("YUGIDBAPP_YUGIAPI_SERVICE_PORT_5000_TCP_PORT", 5000)
+api_host = os.environ.get("API_ADDR", "localhost")
+api_port = os.environ.get("API_PORT", 5000)
 api_url = f"http://{api_host}:{api_port}"
 
-app_host = os.environ.get(
-    "YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_ADDR", "localhost"
-)
-app_port = os.environ.get("YUGIDBAPP_YUGIWEBAPP_SERVICE_PORT_3000_TCP_PORT", 3000)
+app_host = os.environ.get("APP_ADDR", "localhost")
+app_port = os.environ.get("APP_PORT", 3000)
 app_url = f"http://{app_host}:{app_port}"
 
 app.jinja_env.filters["quote_plus"] = lambda u: quote_plus(u)
